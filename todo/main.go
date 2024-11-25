@@ -51,6 +51,7 @@ func main() {
 
 	// 读取用户输入的索引，并打开对应的url
 	for {
+		var vaildURLs []string
 		fmt.Printf("input the index you wanna open: ")
 		scanner := bufio.NewScanner(os.Stdin)
 		scanner.Scan()
@@ -59,15 +60,18 @@ func main() {
 			p("bye")
 			break
 		}
-		indexes := strings.Fields(input)
-		var vaildURLs []string
-		for _, idx := range indexes {
-			index, err := strconv.Atoi(idx)
-			if err != nil || index < 0 || index >= len(lines)-1 {
-				p("invalid index:", idx)
-				continue
+		if input == "all" {
+			vaildURLs = lines
+		} else {
+			indexes := strings.Fields(input)
+			for _, idx := range indexes {
+				index, err := strconv.Atoi(idx)
+				if err != nil || index < 0 || index >= len(lines) {
+					p("invalid index:", idx)
+					continue
+				}
+				vaildURLs = append(vaildURLs, lines[index])
 			}
-			vaildURLs = append(vaildURLs, lines[index])
 		}
 		for _, url := range vaildURLs {
 			p("opening url:", url)
@@ -77,6 +81,5 @@ func main() {
 				utils.CheckErr(err)
 			}
 		}
-
 	}
 }
