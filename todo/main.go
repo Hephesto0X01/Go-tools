@@ -22,6 +22,7 @@ func main() {
 	defaultPath := "C:/Users/28998/Desktop/TODO.txt"
 	filePath := flag.String("f", defaultPath, "指定要读取的文件路径，如果不指定则使用默认路径 "+defaultPath)
 	briefPrint := flag.Bool("b", false, "只打印任务列表")
+	onlyURLs := flag.Bool("u", false, "只打印url列表")
 	flag.Parse()
 
 	// 读取文件内容并打印
@@ -43,6 +44,13 @@ func main() {
 		final = utils.GetBriefLines(lines)
 	}
 
+	if *onlyURLs {
+		final = utils.GetURLs(lines)
+	}
+
+	if *briefPrint && *onlyURLs {
+		final = lines
+	}
 	// 打印完整任务列表
 	for index, line := range final {
 		p(strconv.Itoa(index)+":", line)
@@ -73,7 +81,14 @@ func main() {
 				vaildURLs = append(vaildURLs, lines[index])
 			}
 		}
-		for _, url := range vaildURLs {
+
+		filteredURLs := utils.GetURLs(vaildURLs)
+
+		for _, url := range filteredURLs {
+			if url == "" {
+				p("invalid url:", url)
+				continue
+			}
 			p("opening url:", url)
 			err := exec.Command("cmd", "/c", "start", "msedge", url).Run()
 			if err != nil {
